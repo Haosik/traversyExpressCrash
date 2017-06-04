@@ -16,7 +16,7 @@ app.use(logger);
 */
 
 // View Engine
-app.set('view engine', 'ejs');
+app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
 // BodyParser Middleware
