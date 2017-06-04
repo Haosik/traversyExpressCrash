@@ -7,16 +7,51 @@ let app = express();
 
 // Creating Middleware function
 // Order is important!
-let logger = (req, res, next) => {
+/*let logger = (req, res, next) => {
     console.log(`Logging...`);
     next();
 }
 
 app.use(logger);
+*/
+
+// View Engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// BodyParser Middleware
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+    extended: false
+}));
+
+// Set static path (folder)
+app.use(express.static(path.join(__dirname, 'public')));
+
+let people = [{
+        id: 1,
+        name: 'Jeff',
+        age: 30
+    }, {
+        id: 2,
+        name: 'Jop',
+        age: 21
+    },
+    {
+        id: 3,
+        name: 'Lapidus',
+        age: 14
+    }
+
+];
 
 // Routes
 app.get('/', (req, res) => {
-    res.send(`Hello World`);
+    res.render('index', {
+        title: 'This is Traversy Express Crash',
+        heading: 'Hello guyz!',
+        people: people
+    });
 });
 
 // Starting express server
