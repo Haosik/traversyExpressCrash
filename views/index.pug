@@ -10,10 +10,24 @@ head
 body
 	include partials/header
 
+	h2 Add customer
+	form(action="users/add", method="POST")
+		label First name: 
+		input(type="text", name="first_name")
+		br
+		label Age: 
+		input(type="text", name="age")
+		br
+		label E-mail: 
+		input(type="text", name="email")
+		br
+		input(type="submit", value="Submit")
+
+
 	h1= heading
 	ul
 		-for (let i = 0; i < people.length; i++)
-			li= people[i].name + ': ' + people[i].age
+			li= people[i].first_name + ': ' + people[i].age
 		
 
 	include partials/footer
