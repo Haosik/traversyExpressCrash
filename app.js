@@ -1,10 +1,12 @@
 const express = require('express'),
-bodyParser = require('body-parser'),
-path = require('path'),
-expressValidator = require('express-validator'),
-util = require('util'),
-mongojs = require('mongojs'),
-db = mongojs('expressCrash', ['users']);
+    bodyParser = require('body-parser'),
+    path = require('path'),
+    expressValidator = require('express-validator'),
+    util = require('util'),
+    mongojs = require('mongojs'),
+    db = mongojs('expressCrash', ['users']),
+    ObjectId = require('mongodb').ObjectID;
+
 
 // Creating express app
 let app = express();
@@ -42,51 +44,38 @@ app.use((req, res, next) => {
 // Express-Validator Middleware
 // In this example, the formParam value is going to get morphed into form body format useful for printing.
 app.use(expressValidator({
-  errorFormatter: function(param, msg, value) {
-      var namespace = param.split('.')
-      , root    = namespace.shift()
-      , formParam = root;
+    errorFormatter: function (param, msg, value) {
+        var namespace = param.split('.'),
+            root = namespace.shift(),
+            formParam = root;
 
-    while(namespace.length) {
-      formParam += '[' + namespace.shift() + ']';
+        while (namespace.length) {
+            formParam += '[' + namespace.shift() + ']';
+        }
+        return {
+            param: formParam,
+            msg: msg,
+            value: value
+        };
     }
-    return {
-      param : formParam,
-      msg   : msg,
-      value : value
-    };
-  }
 }));
 
-let people = [{
-        id: 1,
-        first_name: 'Jeff',
-        age: 30,
-        email: 'jeff@example.com'
-    }, {
-        id: 2,
-        first_name: 'Jop',
-        age: 21,
-        email: 'jop@example.com'
-    },
-    {
-        id: 3,
-        first_name: 'Lapidus',
-        age: 14,
-        email: 'lapidus@example.com'
-    }
-
-];
-
 // Routes
+
+// Opening index page
 app.get('/', (req, res) => {
-    res.render('index', {
-        title: 'This is Traversy Express Crash',
-        heading: 'Hello guyz!',
-        people: people
+    // Using Mongojs put files from the database to render
+    db.users.find(function (err, docs) {
+        res.render('index', {
+            title: 'This is Traversy Express Crash',
+            heading: 'Using MongoJS to add and delete users in MongoDB',
+            people: docs
+        });
+        console.log(docs);
     });
 });
 
+// Sending post request to add new user in DB
 app.post('/users/add', (req, res) => {
     req.checkBody('first_name', 'First Name is required!').notEmpty();
     req.checkBody('age', 'Invalid age!').notEmpty().isInt();
@@ -95,12 +84,14 @@ app.post('/users/add', (req, res) => {
     let errors = req.validationErrors();
     if (errors) {
         // console.log(errors);
-        res.render('index', {
-        title: 'This is Traversy Express Crash',
-        heading: 'Hello guyz!',
-        people: people,
-        errors: errors
-    });
+        db.users.find(function (err, docs) {
+            res.render('index', {
+                title: 'This is Traversy Express Crash',
+                heading: 'Using MongoJS to add and delete users in MongoDB',
+                people: docs,
+                errors: errors
+            });
+        });
     } else {
         let newUser = {
             first_name: req.body.first_name,
@@ -108,8 +99,24 @@ app.post('/users/add', (req, res) => {
             email: req.body.email
         };
         console.log('SUCCESS');
-        
+        db.users.insert(newUser, (err, result) => {
+            if (err) {
+                console.log(err)
+            }
+            res.redirect('/');
+        });
     }
+})
+
+// Sending delete request to remove user in DB
+app.delete('/users/delete/:id', (req, res) => {
+    // console.log(req.params.id);
+    db.users.remove({_id : ObjectId(req.params.id)}, (err, result) => {
+            if (err) {
+                console.log(err);
+            }
+            res.redirect('/');
+        });
 })
 
 // Starting express server

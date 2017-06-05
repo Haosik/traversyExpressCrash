@@ -1,49 +1,48 @@
 <!DOCTYPE html>
 html(lang="en")
 
-head
-	meta(charset="UTF-8")
-	meta(name="viewport", content="width=device-width, initial-scale=1.0")
-	meta(http-equiv="X-UA-Compatible", content="ie=edge")
-	title= title
 
-body
 	include partials/header
+	section
+		.container
+			h2 Add customer
+			form(action="/users/add", method="post")#super-form
+				if errors
+					- var hasErrors = true
+					- var errorsArr = errors
 
-	h2 Add customer
-	form(action="users/add", method="POST")
-		label First name: 
-			input(type="text", name="first_name")
-		if errors
-			- for (var i = 0; i < errors.length; i++) 
-				if errors[i].param == 'first_name'
-					span(style="color: red")= errors[i].msg
-					- break
-		br
-		label Age: 
-			input(type="text", name="age")
-		if errors
-			- for (var i = 0; i < errors.length; i++) 
-				if errors[i].param == 'age'
-					span(style="color: red")= errors[i].msg
-					- break
-		br
-		label E-mail: 
-			input(type="text", name="email")
-		if errors
-			- for (var i = 0; i < errors.length; i++) 
-				if errors[i].param == 'email'
-					span(style="color: red")= errors[i].msg
-					- break
-		br
-		br
-		input(type="submit", value="Submit")
+				label First name: 
+					input(type="text", name="first_name")
+				if hasErrors
+					- for (var i = 0; i < errorsArr.length; i++)
+						if errorsArr[i].param == 'first_name'
+							span(style="color: red")= errorsArr[i].msg
+							- break
+				br
+				label Age: 
+					input(type="text", name="age")
+				if hasErrors
+					- for (var i = 0; i < errorsArr.length; i++)
+						if errorsArr[i].param == 'age'
+							span(style="color: red")= errorsArr[i].msg
+							- break
+				br
+				label E-mail: 
+					input(type="text", name="email")
+				if hasErrors
+					- for (var i = 0; i < errorsArr.length; i++)
+						if errorsArr[i].param == 'email'
+							span(style="color: red")= errorsArr[i].msg
+							- break
+				br
+				br
+				input(type="submit", value="Submit")#submit-form
 
 
-	h1= heading
-	ul
-		-for (let i = 0; i < people.length; i++)
-			li= people[i].first_name + ': ' + people[i].age
-		
+			h1= heading
+			ul
+				-for (let i = 0; i < people.length; i++)
+					li= people[i].first_name + ': ' + people[i].age
+						a(href="#", data-id=people[i]._id).deleteUser  Delete
 
-	include partials/footer
+	include partials/footer.pug
